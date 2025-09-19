@@ -1,1 +1,5 @@
+ # Basal Ganglia Simulator
+   
+   [**Click here to run the simulator**](https://2021mgupta.github.io/basal-ganglia-simulator/index.html)
+
 I asked Claude to make me this model, which it did with React and hosted on an html site. I wanted a circuit to model the direct and indirect pathway of the basal ganglia, with an interactive component to help you toggle different nuclei on or off. For example, you could understand what would happen if you knocked off the subthalamic nucleus by toggling it off. I expect that it is lacking some nuance but I modeled it off the depiction of the pathways in first aid. I did not include the SNc component, but just know that it activates the direct and inhibits the indirect pathway. This explains why degeneration of the SNc leads to bradykinesia. I hope you find it enjoyable!
