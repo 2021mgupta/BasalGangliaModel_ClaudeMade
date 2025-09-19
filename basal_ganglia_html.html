@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Basal Ganglia Circuit Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #c3dafe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .controls {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .controls h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 20px;
+        }
+        
+        .control-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .control-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .toggle {
+            width: 48px;
+            height: 24px;
+            background: #ef4444;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .toggle.on {
+            background: #10b981;
+        }
+        
+        .toggle-knob {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+        }
+        
+        .toggle.on .toggle-knob {
+            transform: translateX(24px);
+        }
+        
+        .output-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: white;
+            border: 2px dashed #d1d5db;
+            border-radius: 10px;
+        }
+        
+        .output-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+        
+        .output-text {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .output-increased { color: #dc2626; }
+        .output-decreased { color: #2563eb; }
+        .output-normal { color: #059669; }
+        .output-other { color: #6b7280; }
+        
+        .diagram-container {
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            padding: 10px;
+        }
+        
+        .legend {
+            margin-top: 30px;
+            background: #eff6ff;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .legend h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+        
+        .legend-item {
+            color: #1e40af;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .title {
+                font-size: 1.5rem;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Basal Ganglia Circuit Simulator</h1>
+            <p class="subtitle">Toggle structures on/off to simulate lesions and observe effects on movement control</p>
+        </div>
+        
+        <div class="main-grid">
+            <div class="controls">
+                <h3>Structure Controls</h3>
+                
+                <div class="control-item">
+                    <span class="control-label">Cortex</span>
+                    <div class="toggle on" onclick="toggleStructure('cortex')" id="cortex-toggle">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+                
+                <div class="control-item">
+                    <span class="control-label">Striatum</span>
+                    <div class="toggle on" onclick="toggleStructure('striatum')" id="striatum-toggle">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+                
+                <div class="control-item">
+                    <span class="control-label">GPe (External Globus Pallidus)</span>
+                    <div class="toggle on" onclick="toggleStructure('gpe')" id="gpe-toggle">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+                
+                <div class="control-item">
+                    <span class="control-label">GPi (Internal Globus Pallidus)</span>
+                    <div class="toggle on" onclick="toggleStructure('gpi')" id="gpi-toggle">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+                
+                <div class="control-item">
+                    <span class="control-label">STN (Subthalamic Nucleus)</span>
+                    <div class="toggle on" onclick="toggleStructure('stn')" id="stn-toggle">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+                
+                <div class="control-item">
+                    <span class="control-label">Thalamus</span>
+                    <div class="toggle on" onclick="toggleStructure('thalamus')" id="thalamus-toggle">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+                
+                <div class="output-box">
+                    <div class="output-title">Movement Output:</div>
+                    <div class="output-text output-normal" id="movement-output">Normal Movement (Balanced)</div>
+                </div>
+            </div>
+            
+            <div class="diagram-container">
+                <svg viewBox="0 0 600 400" style="width: 100%; height: auto;">
+                    <defs>
+                        <marker id="excitatory" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#10B981" />
+                        </marker>
+                        <marker id="inhibitory" markerWidth="12" markerHeight="12" refX="6" refY="6" orient="auto">
+                            <circle cx="6" cy="6" r="4" fill="none" stroke="#EF4444" stroke-width="2" />
+                        </marker>
+                    </defs>
+
+                    <!-- Cortical excitatory connections -->
+                    <path id="cortex-striatum" d="M 150 75 Q 200 100 225 140" 
+                          stroke="#10B981" stroke-width="3" fill="none" 
+                          marker-end="url(#excitatory)" />
+
+                    <!-- Striatal inhibitory connections -->
+                    <path id="striatum-gpe" d="M 225 160 Q 150 200 120 235" 
+                          stroke="#EF4444" stroke-width="3" fill="none" 
+                          marker-end="url(#inhibitory)" />
+                    
+                    <path id="striatum-gpi" d="M 275 160 Q 350 200 425 235" 
+                          stroke="#EF4444" stroke-width="3" fill="none" 
+                          marker-end="url(#inhibitory)" />
+
+                    <!-- GPe to STN -->
+                    <path id="gpe-stn" d="M 120 245 Q 200 200 330 185" 
+                          stroke="#EF4444" stroke-width="3" fill="none" 
+                          marker-end="url(#inhibitory)" />
+
+                    <!-- STN to GPi -->
+                    <path id="stn-gpi" d="M 370 185 Q 400 215 430 235" 
+                          stroke="#10B981" stroke-width="3" fill="none" 
+                          marker-end="url(#excitatory)" />
+
+                    <!-- GPi to Thalamus -->
+                    <path id="gpi-thalamus" d="M 435 270 Q 380 300 325 335" 
+                          stroke="#EF4444" stroke-width="3" fill="none" 
+                          marker-end="url(#inhibitory)" />
+
+                    <!-- Thalamus to Cortex feedback -->
+                    <path id="thalamus-cortex" d="M 275 340 Q 200 300 150 75" 
+                          stroke="#10B981" stroke-width="3" fill="none" 
+                          marker-end="url(#excitatory)" 
+                          stroke-dasharray="5,5" />
+
+                    <!-- Structures -->
+                    <circle id="cortex-circle" cx="150" cy="50" r="25" 
+                            fill="#8B5CF6" stroke="#4C1D95" stroke-width="2" />
+                    <text x="150" y="55" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Cortex</text>
+                    <text id="cortex-x" x="150" y="80" text-anchor="middle" fill="red" font-size="12" style="display: none;">✗</text>
+
+                    <ellipse id="striatum-ellipse" cx="250" cy="150" rx="35" ry="20" 
+                             fill="#3B82F6" stroke="#1E40AF" stroke-width="2" />
+                    <text x="250" y="155" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Striatum</text>
+                    <text id="striatum-x" x="250" y="185" text-anchor="middle" fill="red" font-size="14" style="display: none;">✗</text>
+
+                    <circle id="gpe-circle" cx="100" cy="250" r="20" 
+                            fill="#F59E0B" stroke="#D97706" stroke-width="2" />
+                    <text x="100" y="255" text-anchor="middle" fill="white" font-size="9" font-weight="bold">GPe</text>
+                    <text id="gpe-x" x="100" y="275" text-anchor="middle" fill="red" font-size="12" style="display: none;">✗</text>
+
+                    <circle id="stn-circle" cx="350" cy="180" r="20" 
+                            fill="#EF4444" stroke="#DC2626" stroke-width="2" />
+                    <text x="350" y="185" text-anchor="middle" fill="white" font-size="9" font-weight="bold">STN</text>
+                    <text id="stn-x" x="350" y="205" text-anchor="middle" fill="red" font-size="12" style="display: none;">✗</text>
+
+                    <circle id="gpi-circle" cx="450" cy="250" r="20" 
+                            fill="#10B981" stroke="#059669" stroke-width="2" />
+                    <text x="450" y="255" text-anchor="middle" fill="white" font-size="9" font-weight="bold">GPi</text>
+                    <text id="gpi-x" x="450" y="275" text-anchor="middle" fill="red" font-size="12" style="display: none;">✗</text>
+
+                    <circle id="thalamus-circle" cx="300" cy="350" r="25" 
+                            fill="#6366F1" stroke="#4338CA" stroke-width="2" />
+                    <text x="300" y="355" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Thalamus</text>
+                    <text id="thalamus-x" x="300" y="380" text-anchor="middle" fill="red" font-size="12" style="display: none;">✗</text>
+
+                    <!-- Legend -->
+                    <g transform="translate(20, 300)">
+                        <text x="0" y="0" font-size="12" font-weight="bold" fill="#374151">Legend:</text>
+                        <line x1="0" y1="15" x2="20" y2="15" stroke="#10B981" stroke-width="3" />
+                        <polygon points="20 12, 28 15, 20 18" fill="#10B981" />
+                        <text x="35" y="19" font-size="10" fill="#374151">Excitatory (Glutamate)</text>
+                        <line x1="0" y1="30" x2="20" y2="30" stroke="#EF4444" stroke-width="3" />
+                        <circle cx="26" cy="30" r="4" fill="none" stroke="#EF4444" stroke-width="2" />
+                        <text x="35" y="34" font-size="10" fill="#374151">Inhibitory (GABA)</text>
+                        <line x1="0" y1="45" x2="20" y2="45" stroke="#10B981" stroke-width="3" stroke-dasharray="3,3" />
+                        <text x="25" y="49" font-size="10" fill="#374151">Thalamo-cortical feedback</text>
+                        <text x="0" y="65" font-size="10" fill="#6B7280" font-style="italic">*Thalamus is tonically active</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <h3>How it Works:</h3>
+            <div class="legend-item"><strong>Key Principle:</strong> Higher GPi activity → More GABA release → More thalamic inhibition → Less movement</div>
+            <div class="legend-item"><strong>Direct Pathway:</strong> Cortex → Striatum (GABA) inhibits GPi → Lower GPi activity → Less thalamic inhibition → More movement</div>
+            <div class="legend-item"><strong>Indirect Pathway:</strong> GPe (GABA) inhibits STN → STN (glutamate) excites GPi → Higher GPi activity → More thalamic inhibition → Less movement</div>
+            <div class="legend-item"><strong>Balance:</strong> Normal movement requires balanced GPi activity from competing direct/indirect influences</div>
+        </div>
+    </div>
+
+    <script>
+        const structures = {
+            cortex: true,
+            striatum: true,
+            gpe: true,
+            gpi: true,
+            stn: true,
+            thalamus: true
+        };
+
+        function toggleStructure(structureName) {
+            structures[structureName] = !structures[structureName];
+            updateToggle(structureName);
+            updateDiagram();
+            updateMovementOutput();
+        }
+
+        function updateToggle(structureName) {
+            const toggle = document.getElementById(structureName + '-toggle');
+            if (structures[structureName]) {
+                toggle.classList.add('on');
+            } else {
+                toggle.classList.remove('on');
+            }
+        }
+
+        function updateDiagram() {
+            // Update structure appearance
+            Object.keys(structures).forEach(structure => {
+                const isActive = structures[structure];
+                const circle = document.getElementById(structure + '-circle') || document.getElementById(structure + '-ellipse');
+                const x = document.getElementById(structure + '-x');
+                
+                if (circle) {
+                    circle.style.opacity = isActive ? '1' : '0.5';
+                    circle.style.fill = isActive ? circle.getAttribute('fill') : '#D1D5DB';
+                }
+                
+                if (x) {
+                    x.style.display = isActive ? 'none' : 'block';
+                }
+            });
+
+            // Update pathway opacity
+            const pathways = [
+                { id: 'cortex-striatum', deps: ['cortex'] },
+                { id: 'striatum-gpe', deps: ['striatum'] },
+                { id: 'striatum-gpi', deps: ['striatum'] },
+                { id: 'gpe-stn', deps: ['gpe'] },
+                { id: 'stn-gpi', deps: ['stn'] },
+                { id: 'gpi-thalamus', deps: ['gpi'] },
+                { id: 'thalamus-cortex', deps: ['thalamus'] }
+            ];
+
+            pathways.forEach(pathway => {
+                const element = document.getElementById(pathway.id);
+                const isActive = pathway.deps.every(dep => structures[dep]);
+                element.style.opacity = isActive ? '1' : '0.3';
+            });
+        }
+
+        function calculateMovementOutput() {
+            if (!structures.cortex) return 'No Cortical Input';
+            if (!structures.thalamus) return 'No Thalamic Output';
+            
+            if (!structures.gpi) {
+                return 'Severe Hyperkinesia (No GPi)';
+            }
+            
+            let gpiActivity = 1;
+            
+            if (structures.cortex && structures.striatum) {
+                gpiActivity -= 0.6;
+            }
+            
+            let stnActivity = 1;
+            
+            if (structures.gpe) {
+                stnActivity -= 0.8;
+            }
+            
+            if (structures.cortex && structures.striatum && structures.gpe) {
+                stnActivity += 0.6;
+            }
+            
+            if (structures.stn) {
+                gpiActivity += stnActivity * 0.8;
+            }
+            
+            if (gpiActivity > 1.2) return 'Decreased Movement (High GPi Activity)';
+            if (gpiActivity < 0.4) return 'Increased Movement (Low GPi Activity)';
+            if (gpiActivity >= 0.8 && gpiActivity <= 1.2) return 'Normal Movement (Balanced)';
+            if (gpiActivity < 0.8) return 'Slightly Increased Movement';
+            return 'Slightly Decreased Movement';
+        }
+
+        function updateMovementOutput() {
+            const output = calculateMovementOutput();
+            const outputElement = document.getElementById('movement-output');
+            
+            outputElement.textContent = output;
+            
+            // Remove all color classes
+            outputElement.className = 'output-text';
+            
+            // Add appropriate color class
+            if (output.includes('Increased Movement') || output.includes('Hyperkinesia')) {
+                outputElement.classList.add('output-increased');
+            } else if (output.includes('Decreased Movement') || output.includes('Hypokinetic')) {
+                outputElement.classList.add('output-decreased');
+            } else if (output.includes('Normal Movement') || output === 'Balanced Movement') {
+                outputElement.classList.add('output-normal');
+            } else {
+                outputElement.classList.add('output-other');
+            }
+        }
+
+        // Initialize the diagram
+        updateDiagram();
+        updateMovementOutput();
+    </script>
+</body>
+</html>
